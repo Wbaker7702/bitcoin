@@ -441,8 +441,8 @@ BOOST_AUTO_TEST_CASE(streams_buffered_file_rand)
     for (int rep = 0; rep < 50; ++rep) {
         AutoFile file{fsbridge::fopen(streams_test_filename, "w+b")};
         size_t fileSize = InsecureRandRange(256);
-        for (uint8_t i = 0; i < fileSize; ++i) {
-            file << i;
+        for (size_t i = 0; i < fileSize; ++i) {
+            file << static_cast<uint8_t>(i);
         }
         std::rewind(file.Get());
 
