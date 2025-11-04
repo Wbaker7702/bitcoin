@@ -1,0 +1,9 @@
+tree a2e8e8fb6b9830b24d9dcbd921cfbbed4c8eba0b
+parent aa6b3061ee59b8c4d962097118298bafbd080c18
+parent 2f15e86a68aba56a8ea8e01e58b2fb7b71846b51
+author Gavin Andresen <gavinandresen@gmail.com> 1367616767 -0700
+committer Gavin Andresen <gavinandresen@gmail.com> 1367616767 -0700
+
+Merge pull request #2607 from gavinandresen/loadwalletfix
+
+Do not write to wallet during LoadWallet

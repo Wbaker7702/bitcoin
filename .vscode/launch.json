@@ -1,0 +1,25 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Node.js: Launch via NPM",
+            "type": "node",
+            "request": "launch",
+            "cwd": "${workspaceFolder}/hosting",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": [
+                "run-script",
+                "dev"
+            ],
+            "console": "integratedTerminal"
+        }
+    ]
+}

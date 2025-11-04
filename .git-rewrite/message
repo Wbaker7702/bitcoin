@@ -1,0 +1,6 @@
+Do not write to wallet during LoadWallet
+
+When debugging another issue, I found a hang-during-startup race condition due to
+LoadWallet calling SetMinVersion (via LoadCryptedKey).
+
+Writing to the file that you're in the process of reading is a bad idea.
