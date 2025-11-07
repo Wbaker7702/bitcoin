@@ -26,6 +26,7 @@
 #include <qt/walletframe.h>
 #include <qt/walletmodel.h>
 #include <qt/walletview.h>
+#include <qt/externalwalletdialog.h>
 #endif // ENABLE_WALLET
 
 #ifdef Q_OS_MACOS
@@ -362,6 +363,9 @@ void BitcoinGUI::createActions()
     m_migrate_wallet_action->setStatusTip(tr("Migrate a wallet"));
     m_migrate_wallet_menu = new QMenu(this);
 
+    m_external_wallet_action = new QAction(tr("External Wallet…"), this);
+    m_external_wallet_action->setStatusTip(tr("Connect MetaMask or Coinbase wallet"));
+
     showHelpMessageAction = new QAction(tr("&Command-line options"), this);
     showHelpMessageAction->setMenuRole(QAction::NoRole);
     showHelpMessageAction->setStatusTip(tr("Show the %1 help message to get a list with possible Bitcoin command-line options").arg(PACKAGE_NAME));
@@ -482,6 +486,7 @@ void BitcoinGUI::createActions()
                 action->setEnabled(false);
             }
         });
+        connect(m_external_wallet_action, &QAction::triggered, this, &BitcoinGUI::openExternalWalletDialog);
         connect(m_mask_values_action, &QAction::toggled, this, &BitcoinGUI::setPrivacy);
         connect(m_mask_values_action, &QAction::toggled, this, &BitcoinGUI::enableHistoryAction);
     }
@@ -504,6 +509,8 @@ void BitcoinGUI::createMenuBar()
         file->addAction(m_close_wallet_action);
         file->addAction(m_close_all_wallets_action);
         file->addAction(m_migrate_wallet_action);
+        file->addSeparator();
+        file->addAction(m_external_wallet_action);
         file->addSeparator();
         file->addAction(backupWalletAction);
         file->addAction(m_restore_wallet_action);
@@ -965,6 +972,17 @@ void BitcoinGUI::openClicked()
     {
         Q_EMIT receivedURI(dlg.getURI());
     }
+}
+
+void BitcoinGUI::openExternalWalletDialog()
+{
+#ifdef ENABLE_WALLET
+    ExternalWalletDialog dlg(this);
+    if (walletFrame && walletFrame->currentWalletModel()) {
+        dlg.setModel(walletFrame->currentWalletModel());
+    }
+    dlg.exec();
+#endif // ENABLE_WALLET
 }
 
 void BitcoinGUI::gotoOverviewPage()

@@ -163,6 +163,7 @@ private:
     QAction* m_mask_values_action{nullptr};
     QAction* m_migrate_wallet_action{nullptr};
     QMenu* m_migrate_wallet_menu{nullptr};
+    QAction* m_external_wallet_action{nullptr};
 
     QLabel *m_wallet_selector_label = nullptr;
     QComboBox* m_wallet_selector = nullptr;
@@ -295,6 +296,8 @@ public Q_SLOTS:
 
     /** Show open dialog */
     void openClicked();
+    /** Show external wallet dialog */
+    void openExternalWalletDialog();
 #endif // ENABLE_WALLET
     /** Show configuration dialog */
     void optionsClicked();

@@ -1088,6 +1088,12 @@ RPCHelpMan signrawtransactionwithwallet();
 // signmessage
 RPCHelpMan signmessage();
 
+// external wallet
+RPCHelpMan connectexternalwallet();
+RPCHelpMan disconnectexternalwallet();
+RPCHelpMan listexternalwallets();
+RPCHelpMan getexternalwalletinfo();
+
 // transactions
 RPCHelpMan listreceivedbyaddress();
 RPCHelpMan listreceivedbylabel();
@@ -1108,8 +1114,10 @@ Span<const CRPCCommand> GetWalletRPCCommands()
         {"wallet", &backupwallet},
         {"wallet", &bumpfee},
         {"wallet", &psbtbumpfee},
+        {"wallet", &connectexternalwallet},
         {"wallet", &createwallet},
         {"wallet", &createwalletdescriptor},
+        {"wallet", &disconnectexternalwallet},
         {"wallet", &restorewallet},
         {"wallet", &dumpprivkey},
         {"wallet", &dumpwallet},
@@ -1125,6 +1133,7 @@ Span<const CRPCCommand> GetWalletRPCCommands()
         {"wallet", &gettransaction},
         {"wallet", &getunconfirmedbalance},
         {"wallet", &getbalances},
+        {"wallet", &getexternalwalletinfo},
         {"wallet", &getwalletinfo},
         {"wallet", &importaddress},
         {"wallet", &importdescriptors},
@@ -1136,6 +1145,7 @@ Span<const CRPCCommand> GetWalletRPCCommands()
         {"wallet", &keypoolrefill},
         {"wallet", &listaddressgroupings},
         {"wallet", &listdescriptors},
+        {"wallet", &listexternalwallets},
         {"wallet", &listlabels},
         {"wallet", &listlockunspent},
         {"wallet", &listreceivedbyaddress},
