@@ -1,0 +1,208 @@
+External Wallet Integration - File Structure
+=============================================
+
+New Files Created:
+==================
+
+src/
+├── wallet/
+│   ├── externalwallet.h              (62 lines)  - Manager interface
+│   ├── externalwallet.cpp            (95 lines)  - Manager implementation
+│   └── rpc/
+│       └── externalwallet.cpp        (187 lines) - RPC commands
+│
+└── qt/
+    ├── externalwalletdialog.h        (57 lines)  - GUI dialog header
+    └── externalwalletdialog.cpp      (242 lines) - GUI dialog implementation
+
+Documentation:
+    ├── EXTERNAL_WALLET_FEATURE.md            - Detailed documentation
+    ├── EXTERNAL_WALLET_QUICK_REFERENCE.md    - Quick reference guide
+    ├── FEATURE_SUMMARY.txt                   - Implementation summary
+    └── EXTERNAL_WALLET_STRUCTURE.txt         - This file
+
+Total New Code: 643 lines
+
+
+Modified Files:
+===============
+
+src/qt/bitcoingui.h
+  └── Added: m_external_wallet_action member
+  └── Added: openExternalWalletDialog() method
+
+src/qt/bitcoingui.cpp
+  └── Added: #include <qt/externalwalletdialog.h>
+  └── Added: External wallet action creation
+  └── Added: Menu item (File → External Wallet…)
+  └── Added: Signal connection
+  └── Added: openExternalWalletDialog() implementation
+
+src/wallet/rpc/wallet.cpp
+  └── Added: 4 RPC command forward declarations
+  └── Added: 4 RPC command registrations
+
+
+Feature Components:
+===================
+
+┌─────────────────────────────────────────────────────────┐
+│                    Bitcoin Core GUI                      │
+├─────────────────────────────────────────────────────────┤
+│  File Menu                                               │
+│  ├── Create Wallet                                       │
+│  ├── Open Wallet                                         │
+│  ├── Close Wallet                                        │
+│  ├── Migrate Wallet                                      │
+│  ├── ────────────────                                    │
+│  ├── External Wallet… ← NEW                              │
+│  │   └─────────────────────────────────────┐            │
+│  │                                           │            │
+│  └── Backup Wallet                          ▼            │
+│                                                           │
+│      ┌────────────────────────────────────────┐          │
+│      │  External Wallet Dialog                │          │
+│      ├────────────────────────────────────────┤          │
+│      │  Provider: [MetaMask ▼]                │          │
+│      │  Address:  [0x________________]        │          │
+│      │  [Connect] [Disconnect]                │          │
+│      │                                         │          │
+│      │  Active Connections:                   │          │
+│      │  • MetaMask: 0x742d... (session123)    │          │
+│      │  • Coinbase: 0x456a... (session456)    │          │
+│      │                                         │          │
+│      │  [Refresh] [Close]                     │          │
+│      └────────────────────────────────────────┘          │
+└─────────────────────────────────────────────────────────┘
+
+
+RPC Interface:
+==============
+
+bitcoin-cli
+    ├── connectexternalwallet
+    │   ├── Input:  provider, address, [session_id]
+    │   └── Output: success, provider, address, session_id
+    │
+    ├── disconnectexternalwallet
+    │   ├── Input:  session_id
+    │   └── Output: success, session_id
+    │
+    ├── listexternalwallets
+    │   ├── Input:  (none)
+    │   └── Output: array of connections
+    │
+    └── getexternalwalletinfo
+        ├── Input:  session_id
+        └── Output: connection details
+
+
+Architecture:
+=============
+
+┌──────────────────────────────────────────────────────────┐
+│                     Application Layer                     │
+├──────────────────────────────────────────────────────────┤
+│                                                            │
+│  ┌─────────────────┐         ┌─────────────────────┐     │
+│  │   GUI Dialog    │         │   RPC Commands      │     │
+│  │  (Qt Interface) │         │  (JSON-RPC API)     │     │
+│  └────────┬────────┘         └──────────┬──────────┘     │
+│           │                              │                │
+│           └──────────┬───────────────────┘                │
+│                      │                                    │
+├──────────────────────┼────────────────────────────────────┤
+│                      ▼                                    │
+│         ┌─────────────────────────────┐                  │
+│         │  ExternalWalletManager      │                  │
+│         ├─────────────────────────────┤                  │
+│         │  • ConnectWallet()          │                  │
+│         │  • DisconnectWallet()       │                  │
+│         │  • GetConnection()          │                  │
+│         │  • ListConnections()        │                  │
+│         │  • VerifySignature()        │                  │
+│         │  • GetProviderName()        │                  │
+│         │  • ParseProvider()          │                  │
+│         └─────────────────────────────┘                  │
+│                      │                                    │
+│                      ▼                                    │
+│         ┌─────────────────────────────┐                  │
+│         │  Connection Storage         │                  │
+│         │  map<session_id, connection>│                  │
+│         └─────────────────────────────┘                  │
+└──────────────────────────────────────────────────────────┘
+
+
+Supported Providers:
+====================
+
+Provider          String ID      Description
+─────────────────────────────────────────────────────────
+MetaMask         "metamask"      Browser-based wallet
+Coinbase Wallet  "coinbase"      Coinbase wallet app
+
+
+Connection Object:
+==================
+
+{
+  provider:        ExternalWalletProvider (enum)
+  address:         string (wallet address)
+  session_id:      string (unique identifier)
+  is_connected:    bool (connection status)
+  connected_time:  int64_t (timestamp)
+  metadata:        map<string, string> (extensible)
+}
+
+
+Usage Flow:
+===========
+
+User Action → GUI/RPC → Manager → Storage
+    │           │         │          │
+    │           │         │          └─→ In-memory map
+    │           │         │
+    │           │         └─→ Session management
+    │           │              Connection tracking
+    │           │              Provider parsing
+    │           │
+    │           └─→ Parameter validation
+    │                JSON formatting
+    │                Error handling
+    │
+    └─→ Dialog interaction
+         Menu navigation
+         Visual feedback
+
+
+Build Integration Required:
+============================
+
+Makefile.am:
+  • Add externalwallet.cpp to libbitcoin_wallet_a_SOURCES
+  • Add rpc/externalwallet.cpp to libbitcoin_wallet_a_SOURCES
+  • Add externalwalletdialog.cpp to BITCOIN_QT_CPP
+  • Add externalwalletdialog.h to BITCOIN_QT_H
+
+CMakeLists.txt (if used):
+  • Add to wallet sources
+  • Add to Qt sources
+
+
+Testing Checklist:
+==================
+
+□ RPC command: connectexternalwallet
+□ RPC command: disconnectexternalwallet
+□ RPC command: listexternalwallets
+□ RPC command: getexternalwalletinfo
+□ GUI: Open dialog from menu
+□ GUI: Connect MetaMask wallet
+□ GUI: Connect Coinbase wallet
+□ GUI: View active connections
+□ GUI: Disconnect wallet
+□ GUI: Refresh connections list
+□ Error handling: Invalid provider
+□ Error handling: Missing parameters
+□ Error handling: Session not found
+
